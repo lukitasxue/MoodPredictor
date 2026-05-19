@@ -104,6 +104,9 @@ p {
 .generate-button,
 .pagination-controls button {
   min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 800;

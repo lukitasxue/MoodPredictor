@@ -34,6 +34,12 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+function addMonths(date, months) {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
 // Initial input values
@@ -51,7 +57,7 @@ const moodScore = ref(null);
 const moodHistory = ref([]);
 const selectedDate = ref(new Date()); // store as Date object
 const genStart = ref(new Date())
-const genEnd = ref(new Date())
+const genEnd = ref(addMonths(new Date(), 2))
 const csvData = ref([]) // Filled later
 const currentPage = ref(1)
 const itemsPerPage = 7

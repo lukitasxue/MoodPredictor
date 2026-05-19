@@ -34,6 +34,12 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+function addMonths(date, months) {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
 // Initial input values
@@ -51,7 +57,7 @@ const moodScore = ref(null);
 const moodHistory = ref([]);
 const selectedDate = ref(new Date()); // store as Date object
 const genStart = ref(new Date())
-const genEnd = ref(new Date())
+const genEnd = ref(addMonths(new Date(), 2))
 const csvData = ref([]) // Filled later
 const currentPage = ref(1)
 const itemsPerPage = 7
@@ -153,10 +159,10 @@ const barChartInsights = computed(() => {
 
   if (!moodHistory.value.length) return insights;
 
-  const { sleep_hours, stress_level, water_effect } = lifestyleAverages.value;
+  const { sleep_hours, stress_level, water_liters } = lifestyleAverages.value;
 
   if (sleep_hours < 7) insights.push("You might benefit from more sleep (target 8h).");
-  if (water_liters < 1.5) insights.push("Hydration is low – aim for at least 1L of water.");
+  if (water_liters < 1.5) insights.push("Hydration is low. Aim for at least 1L of water.");
   if (stress_level > 5) insights.push("Stress levels are high – take breaks and relax.");
 
   return insights;
@@ -419,23 +425,28 @@ watch(lifestyleAverages, (val) => {
 
 <template>
   <div class="go-back-wrapper">
-    <button class="go-back-button" @click="goBackToMenu">← Back to Menu</button>
+    <button class="go-back-button" @click="goBackToMenu">Back to Menu</button>
   </div>
   
 
   <div class="page-layout">
+    <section class="analyzer-intro">
+      <p class="eyebrow">Daily Check-In</p>
+      <h1>Log today, then look for patterns.</h1>
+      <p>Start with a single prediction or generate sample logs to preview the charts and lifestyle insights.</p>
+    </section>
       
       <!-- Top Section: Manual Input + History/Generator -->
   <div class="top-grid">
     <div class="section-box">
     <!-- Manual Input -->
       <div class="manual-input">
-        <h3>Manual Mood Logger</h3> <!-- NEW TITLE -->
+        <h3>Manual Mood Logger</h3>
         <label for="log-date">Log Mood For:</label>
         <Datepicker v-model="selectedDate" />
 
         <form @submit.prevent="handleSubmit">
-          <div v-for="(value, key) in input" :key="key" style="margin-bottom: 1rem;">
+          <div v-for="(value, key) in input" :key="key" class="slider-row">
             <input
               type="range"
               class="slider"
@@ -452,9 +463,7 @@ watch(lifestyleAverages, (val) => {
           <div class="generate-button-wrapper">
             <button class="generate-button" type="submit">Predict Mood</button>
           </div>
-          
-          <br>
-          <br><h3 v-if="moodScore !== null">Predicted Mood Score: {{ moodScore }}</h3>
+          <h3 v-if="moodScore !== null" class="prediction-result">Predicted Mood Score: {{ moodScore }}</h3>
         </form>
       </div>
     </div>
@@ -478,8 +487,8 @@ watch(lifestyleAverages, (val) => {
         </div>
 
 
-        <h2>Mood History</h2> <!-- You said this one is optional, so you can remove it if you want -->
-        <ul>
+        <h2>Mood History</h2>
+        <ul class="history-list">
           <li v-for="entry in paginatedHistory" :key="entry.date">
             <strong>{{ entry.date }}:</strong> Mood: {{ entry.moodScore }}
           </li>
@@ -506,7 +515,7 @@ watch(lifestyleAverages, (val) => {
 
     <div v-if="insights" class="panel">
       <h3>Mood Insights</h3>
-      <ul>
+      <ul class="panel-list">
         <li><strong>General Trend:</strong> {{ insights.generalTrendText }}</li>
         <li><strong>Recent Trend:</strong> {{ insights.recentTrendText }}</li>
         <li><strong>Best Mood:</strong> {{ insights.maxScore }} on {{ insights.maxDate }}</li>
@@ -526,7 +535,7 @@ watch(lifestyleAverages, (val) => {
     </div>
     <div class="panel">
     <h3>Lifestyle Insights</h3>
-    <ul>
+    <ul class="panel-list">
       <li v-for="(line, i) in radarInsights" :key="i">{{ line }}</li>
     </ul>
     </div>
@@ -545,17 +554,15 @@ watch(lifestyleAverages, (val) => {
         <li v-if="barChartInsights.length === 0">No insights generated yet.</li>
 
         <!-- Simple Warnings -->
-        <li v-for="(insight, index) in barChartInsights" :key="'bar-basic-' + index">
-          • {{ insight }}
-        </li>
+        <li v-for="(insight, index) in barChartInsights" :key="'bar-basic-' + index">{{ insight }}</li>
       </ul>
 
       <!-- Divider -->
 
       <!-- Correlation Analysis -->
       <div v-if="barChartExplanation.length">
-        <h4 style="margin-top: 1rem;">Impact Analysis</h4>
-        <ul>
+        <h4 class="analysis-heading">Impact Analysis</h4>
+        <ul class="panel-list">
           <li v-for="(extra, index) in barChartExplanation" :key="'bar-explain-' + index">
             {{ extra }}
           </li>

@@ -1,8 +1,10 @@
 from model import MultVarLinearRegressionModel, train_test_split
 import pandas as pd
+from pathlib import Path
 
 def train_model():
-    df = pd.read_csv('mood_data.csv')
+    data_path = Path(__file__).with_name('mood_data.csv')
+    df = pd.read_csv(data_path)
     # Nonlinear transformation: water effect
     df["water_effect"] = -1 * (df["water_liters"] - 2.0) ** 2 + 1.0
 

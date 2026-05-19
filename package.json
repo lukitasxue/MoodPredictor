@@ -1,0 +1,12 @@
+{
+  "name": "mood-predictor",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "python -m uvicorn main:app --app-dir backend --reload --host 127.0.0.1 --port 8000",
+    "dev:frontend": "npm --prefix frontend run dev -- --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}

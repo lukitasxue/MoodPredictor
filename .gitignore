@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+node_modules/
+dist/
+*.log
+local-app-working.png
+.env
+.env.*
+!.env.example

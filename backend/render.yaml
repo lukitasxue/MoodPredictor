@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: mood-backend
+    env: python
+    buildCommand: ""
+    startCommand: ./start.sh
+    envVars:
+      - key: PORT
+        value: 10000

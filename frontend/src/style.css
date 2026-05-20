@@ -321,6 +321,11 @@ p {
   gap: 16px;
 }
 
+.panel-hint {
+  margin: -8px 0 0;
+  color: #d8d3e8;
+}
+
 .slider-row {
   display: grid;
   gap: 8px;

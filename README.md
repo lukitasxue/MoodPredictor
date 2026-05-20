@@ -78,7 +78,7 @@ Open:
 - Frontend: http://127.0.0.1:5173
 - Backend docs: http://127.0.0.1:8000/docs
 
-The deployed frontend can run predictions locally using the trained model weights, so Netlify does not need a backend for the main prediction button. To force the frontend to call a hosted backend instead, set `VITE_API_BASE_URL` before building.
+The deployed frontend calls the FastAPI backend for predictions. By default it uses the Render backend URL in `frontend/src/api.js`. To use a different backend, set `VITE_API_BASE_URL` before building.
 
 ## Deploy Backend On Render
 

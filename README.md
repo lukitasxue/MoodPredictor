@@ -78,4 +78,4 @@ Open:
 - Frontend: http://127.0.0.1:5173
 - Backend docs: http://127.0.0.1:8000/docs
 
-By default, the frontend calls `http://localhost:8000`. To use a deployed backend, set `VITE_API_BASE_URL` before starting the frontend.
+The deployed frontend can run predictions locally using the trained model weights, so Netlify does not need a backend for the main prediction button. To force the frontend to call a hosted backend instead, set `VITE_API_BASE_URL` before building.

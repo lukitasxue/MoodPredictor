@@ -138,6 +138,12 @@ p {
   transform: translateY(-1px);
 }
 
+.generate-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
 .hero-panel {
   display: grid;
   gap: 16px;
@@ -379,6 +385,22 @@ p {
   color: #111113;
   text-align: center;
   background: #8fe0d5;
+}
+
+.backend-status {
+  margin: 14px 0 0;
+  padding: 14px;
+  border: 1px solid rgba(143, 224, 213, 0.28);
+  border-radius: 8px;
+  color: #d8d3e8;
+  background: rgba(143, 224, 213, 0.08);
+}
+
+.backend-status span {
+  display: block;
+  margin-top: 8px;
+  color: #8fe0d5;
+  font-weight: 800;
 }
 
 .date-range-container {

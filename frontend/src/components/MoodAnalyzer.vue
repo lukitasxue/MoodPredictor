@@ -54,6 +54,9 @@ const input = ref({
 
 // Reactive state
 const moodScore = ref(null);
+const isPredicting = ref(false);
+const backendSeconds = ref(0);
+const predictionMessage = ref('');
 const moodHistory = ref([]);
 const selectedDate = ref(new Date()); // store as Date object
 const genStart = ref(new Date())
@@ -300,8 +303,17 @@ function generateTestLogs() {
 
 // Handle prediction + localStorage overwrite by date
 async function handleSubmit() {
+  isPredicting.value = true;
+  backendSeconds.value = 0;
+  predictionMessage.value = 'Backend initializing. This can take around 60 seconds on the free Render service. Meanwhile, look around the interface or generate logs if you want to test the insights.';
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 90000);
+  const timerId = window.setInterval(() => {
+    backendSeconds.value += 1;
+  }, 1000);
+
   try {
-    const result = await predictMood(input.value);
+    const result = await predictMood(input.value, { signal: controller.signal });
 
     if (!result || typeof result.predicted_mood_score !== 'number') {
       throw new Error("Invalid prediction result");
@@ -336,10 +348,15 @@ async function handleSubmit() {
     moodHistory.value = Object.values(history).sort((a, b) =>
       new Date(a.date) - new Date(b.date)
     );
+    predictionMessage.value = '';
 
   } catch (error) {
-    alert('Error predicting mood. Please try again.');
     console.error('Error predicting mood:', error);
+    predictionMessage.value = 'The backend is still waking up or failed to respond. You can try Predict Mood again in a moment. Meanwhile, generate test logs to explore the charts and insights.';
+  } finally {
+    window.clearTimeout(timeoutId);
+    window.clearInterval(timerId);
+    isPredicting.value = false;
   }
 }
 
@@ -461,8 +478,14 @@ watch(lifestyleAverages, (val) => {
             </label>
           </div>
           <div class="generate-button-wrapper">
-            <button class="generate-button" type="submit">Predict Mood</button>
+            <button class="generate-button" type="submit" :disabled="isPredicting">
+              {{ isPredicting ? 'Waiting for Backend...' : 'Predict Mood' }}
+            </button>
           </div>
+          <p v-if="predictionMessage" class="backend-status">
+            {{ predictionMessage }}
+            <span v-if="isPredicting">Waiting {{ backendSeconds }}s...</span>
+          </p>
           <h3 v-if="moodScore !== null" class="prediction-result">Predicted Mood Score: {{ moodScore }}</h3>
         </form>
       </div>

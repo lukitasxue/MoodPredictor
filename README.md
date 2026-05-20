@@ -79,3 +79,23 @@ Open:
 - Backend docs: http://127.0.0.1:8000/docs
 
 The deployed frontend can run predictions locally using the trained model weights, so Netlify does not need a backend for the main prediction button. To force the frontend to call a hosted backend instead, set `VITE_API_BASE_URL` before building.
+
+## Deploy Backend On Render
+
+This repo includes a root `render.yaml` blueprint for the FastAPI backend.
+
+In Render:
+
+- Create a new Blueprint or Web Service from this GitHub repo
+- Use the root `render.yaml`
+- Render will build from `backend/`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+After Render gives you a backend URL, add it to Netlify as:
+
+```txt
+VITE_API_BASE_URL=https://your-render-service.onrender.com
+```
+
+Then redeploy Netlify.

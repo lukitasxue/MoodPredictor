@@ -15,6 +15,11 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
+
+
 class MoodInput(BaseModel):
     sleep_hours: float
     stress_level: float

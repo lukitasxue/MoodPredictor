@@ -472,6 +472,7 @@ watch(lifestyleAverages, (val) => {
       <!-- Generator + History -->
       <div class="history-logs">
         <h2>Generate Mood Logs</h2> 
+        <p class="panel-hint">Want to see some insights? Generate a few days and watch the charts come alive.</p>
         <div class="date-range-container">
           <div class="date-picker-block">
             <label>Generate From:</label>

@@ -74,6 +74,60 @@ const totalPages = computed(() =>
   Math.ceil(moodHistory.value.length / itemsPerPage)
 )
 
+const moodScaleMin = 1;
+const moodScaleMax = 5;
+
+const moodScoreNumber = computed(() => {
+  if (moodScore.value === null) return null;
+  const score = Number(moodScore.value);
+  return Number.isFinite(score) ? score : null;
+});
+
+const moodScalePosition = computed(() => {
+  if (moodScoreNumber.value === null) return '0%';
+  const clampedScore = Math.min(Math.max(moodScoreNumber.value, moodScaleMin), moodScaleMax);
+  const percent = ((clampedScore - moodScaleMin) / (moodScaleMax - moodScaleMin)) * 100;
+  return `${percent}%`;
+});
+
+const moodInterpretation = computed(() => {
+  const score = moodScoreNumber.value;
+  if (score === null) return null;
+
+  if (score >= 4.5) {
+    return {
+      label: 'Excellent mood',
+      description: 'This is close to the top of the scale. A 5.0 means the model thinks your mood is about as positive as it gets.'
+    };
+  }
+
+  if (score >= 3.5) {
+    return {
+      label: 'Good mood',
+      description: 'The prediction is above average, so your inputs point toward a generally positive day.'
+    };
+  }
+
+  if (score >= 2.5) {
+    return {
+      label: 'Okay or mixed mood',
+      description: 'This sits around the middle of the scale. Some lifestyle signals may be helping, while others may be pulling the score down.'
+    };
+  }
+
+  if (score >= 1.5) {
+    return {
+      label: 'Low mood',
+      description: 'The prediction is below average. The model sees a few warning signs in the current inputs.'
+    };
+  }
+
+  return {
+    label: 'Very low mood',
+    description: 'This is near the bottom of the scale. A 1.0 means the model thinks the day is likely to feel pretty rough.'
+  };
+});
+
 const insights = computed(() => {
   const history = moodHistory.value
   if (!history.length) return null
@@ -486,7 +540,26 @@ watch(lifestyleAverages, (val) => {
             {{ predictionMessage }}
             <span v-if="isPredicting">Waiting {{ backendSeconds }}s...</span>
           </p>
-          <h3 v-if="moodScore !== null" class="prediction-result">Predicted Mood Score: {{ moodScore }}</h3>
+          <div v-if="moodScore !== null && moodInterpretation" class="prediction-result-card">
+            <div class="prediction-summary">
+              <span>Predicted Mood Score</span>
+              <strong>{{ moodScore }}</strong>
+              <p>{{ moodInterpretation.label }}</p>
+            </div>
+
+            <div class="mood-scale" aria-label="Mood score scale from 1.0 to 5.0">
+              <div class="scale-track">
+                <span class="scale-marker" :style="{ left: moodScalePosition }"></span>
+              </div>
+              <div class="scale-labels">
+                <span>1.0<br />Not good</span>
+                <span>3.0<br />Okay</span>
+                <span>5.0<br />Perfect mood</span>
+              </div>
+            </div>
+
+            <p class="prediction-explanation">{{ moodInterpretation.description }}</p>
+          </div>
         </form>
       </div>
     </div>

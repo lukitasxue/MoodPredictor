@@ -1,13 +1,101 @@
-## Dataset Variables
+# Mood Predictor
 
-Each row in the training dataset corresponds to a single day of logged data, with the following features:
+Mood Predictor is a full-stack app that helps people explore why their mood might feel off. The frontend lets users log daily lifestyle habits, while the backend predicts a mood score using a custom multivariable linear regression model built with NumPy.
 
-Variable Name	    Description	                                                                            Format / Range
-sleep_hours	        Total number of hours slept the previous night.	                                        Numeric (e.g. 6.5)
-stress_level	    Self-rated daily stress level. 1 = no stress, 10 = extremely stressed.	                Integer (1 to 10)
-exercise_minutes	Total minutes of physical exercise done during the day.	                                Integer (e.g. 30)
-nutrition_quality	Subjective quality of meals. 1 = poor (junk food), 5 = excellent (balanced).	        Integer (1 to 5)
-social_minutes	    Time spent socializing (in person or online).	                                        Integer (minutes)
-water_liters	    Total water consumed throughout the day.	                                            Numeric (liters, e.g. 2)
-caffeine_cups	    Number of cups of coffee or other caffeinated drinks consumed.	                        Integer (e.g. 1, 2)
-mood_score	        Target variable. Self-rated overall mood at end of day, from 1 (bad) to 10 (great).	    Numeric (1 to 10)
+The goal is not to diagnose anyone. It is a learning-focused project that turns simple daily inputs into a prediction, then visualizes trends so users can reflect on patterns over time.
+
+## What It Does
+
+- Predicts a mood score from 1 to 10
+- Tracks mood history in the browser
+- Shows mood trends over time
+- Compares logged habits against recommended targets
+- Estimates which habits have the strongest positive or negative relationship with mood
+- Includes a test-log generator so the charts can be explored quickly
+
+## Inputs
+
+The current model uses:
+
+- Sleep hours
+- Stress level
+- Nutrition quality
+- Social minutes
+- Water intake, transformed into a hydration-effect feature
+
+## Model Insight
+
+The model learns one weight per input. A positive weight raises the predicted mood score; a negative weight lowers it.
+
+Current trained weights:
+
+| Feature | Weight | Meaning |
+| --- | ---: | --- |
+| Hydration effect | +0.41 | Best near the hydration sweet spot, around 2L |
+| Sleep hours | +0.38 | More sleep tends to improve the prediction |
+| Nutrition quality | +0.22 | Better nutrition tends to lift mood |
+| Social minutes | +0.01 | Small effect in this dataset |
+| Stress level | -0.26 | Higher stress pulls mood down |
+
+Earlier analysis also showed why diagnostics matter: when a group is underrepresented in the training data, such as very low sleep, predictions can become less reliable for that group. The charts are meant to make those patterns visible instead of hiding the model behind a single number.
+
+## Tech Stack
+
+- Frontend: Vue 3, Vite, Chart.js
+- Backend: FastAPI, NumPy, pandas
+- Model: custom multivariable linear regression
+
+## Project Structure
+
+- `frontend/` - Vue app
+- `backend/` - FastAPI API and model code
+
+## Run Locally
+
+Install JavaScript dependencies:
+
+```bash
+npm install
+npm --prefix frontend install
+```
+
+Install Python dependencies:
+
+```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r backend\requirements.txt
+```
+
+Start the frontend and backend together:
+
+```bash
+npm run dev
+```
+
+Open:
+
+- Frontend: http://127.0.0.1:5173
+- Backend docs: http://127.0.0.1:8000/docs
+
+The deployed frontend calls the FastAPI backend for predictions. By default it uses the Render backend URL in `frontend/src/api.js`. To use a different backend, set `VITE_API_BASE_URL` before building.
+
+## Deploy Backend On Render
+
+This repo includes a root `render.yaml` blueprint for the FastAPI backend.
+
+In Render:
+
+- Create a new Blueprint or Web Service from this GitHub repo
+- Use the root `render.yaml`
+- Render will build from `backend/`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+After Render gives you a backend URL, add it to Netlify as:
+
+```txt
+VITE_API_BASE_URL=https://your-render-service.onrender.com
+```
+
+Then redeploy Netlify.
